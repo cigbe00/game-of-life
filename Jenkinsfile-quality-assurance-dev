@@ -10,11 +10,7 @@
 
   node {
   
-    tools {
-        maven 'Maven 3.5.0'
-        jdk 'jdk8'
-    }
-    stage("Prep ${processor} ${os}"){
+     stage("Prep ${processor} ${os}"){
       checkout([
           $class: 'GitSCM',
           branches: scm.branches,
