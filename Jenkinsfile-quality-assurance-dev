@@ -1,6 +1,5 @@
 #!groovy
 
-def pipeline_for_platform( processor, os ){
 
   def git_refspec = '+refs/heads/master:refs/remotes/origin/master'
   def git_checkout_location = 'src'
@@ -68,5 +67,5 @@ def pipeline_for_platform( processor, os ){
     }
   }
   
-}
+
 
