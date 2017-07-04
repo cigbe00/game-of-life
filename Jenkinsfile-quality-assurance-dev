@@ -57,6 +57,7 @@ def pipeline_for_platform( processor, os ){
       stage("Build ${processor} ${os}") {
         sh """
             mvn -Dmaven.test.failure.ignore=true install
+            echo 'running here'
           """
         post {
                 success {
