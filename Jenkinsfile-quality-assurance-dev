@@ -11,7 +11,7 @@ def pipeline_for_platform( processor, os ){
 
   node {
   
-  agent any
+    agent any
     tools {
         maven 'Maven 3.5.0'
         jdk 'jdk8'
