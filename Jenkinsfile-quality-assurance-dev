@@ -1,0 +1,75 @@
+#!groovy
+
+def pipeline_for_platform( processor, os ){
+
+  def git_refspec = '+refs/heads/master:refs/remotes/origin/master'
+  def git_checkout_location = 'src'
+  def git_url = 'git@github.com:cigbe00/game-of-life.git'
+  def git_cred = 'Git_build_ssh'
+  def git_timeout = 500
+  def git_referenece_repo = '/temp/gameoflife'
+
+  node {
+  
+  agent any
+    tools {
+        maven 'Maven 3.5.0'
+        jdk 'jdk8'
+    }
+    stage("Prep ${processor} ${os}"){
+      checkout([
+          $class: 'GitSCM',
+          branches: scm.branches,
+          extensions: scm.extensions +
+          [
+            [
+              $class: 'RelativeTargetDirectory',
+              relativeTargetDir: "${git_checkout_location}"
+            ],
+            [
+              $class: 'CleanBeforeCheckout'
+            ],
+            [
+              $class: 'CloneOption',
+              depth: 0,
+              noTags: false,
+              // Use refernce cache repo is availible, setup with following
+              reference: "${git_referenece_repo}",
+              shallow: true,
+              timeout: git_timeout,
+              honorRefspec: true
+            ],
+            [
+              $class: 'CheckoutOption',
+              timeout: git_timeout
+            ]
+          ],
+          userRemoteConfigs: [[
+            // Use ssh for stable checkout
+            credentialsId: "${git_cred}",
+            url: "${git_url}",
+            // Ensure we fetch development and pull requests
+            refspec: "${git_refspec}"
+          ]]
+      ])
+    }
+    dir("build-${processor}-${os}") {
+      stage("Build ${processor} ${os}") {
+        cleanWs([
+          deleteDirs: true,
+          patterns: [[pattern: 'build_area/**', type: 'EXCLUDE']]
+        ])
+        sh """
+            mvn -Dmaven.test.failure.ignore=true install
+          """
+        post {
+                success {
+                    junit 'target/surefire-reports/**/*.xml' 
+                }
+            }
+      }
+    }
+  }
+  
+}
+
