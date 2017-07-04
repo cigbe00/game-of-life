@@ -55,10 +55,6 @@ def pipeline_for_platform( processor, os ){
     }
     dir("build-${processor}-${os}") {
       stage("Build ${processor} ${os}") {
-        cleanWs([
-          deleteDirs: true,
-          patterns: [[pattern: 'build_area/**', type: 'EXCLUDE']]
-        ])
         sh """
             mvn -Dmaven.test.failure.ignore=true install
           """
